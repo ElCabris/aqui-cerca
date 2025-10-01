@@ -1,0 +1,105 @@
+.register-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fafafa;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+h2 {
+  color: var(--verde-comunidad);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--verde-comunidad);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: var(--turquesa-digital);
+  box-shadow: 0 0 5px var(--turquesa-digital);
+}
+
+input.valid {
+  border-color: var(--verde-comunidad);
+}
+
+input.invalid {
+  border-color: var(--rojo-error);
+}
+
+.error-message {
+  color: var(--rojo-error);
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+button {
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--turquesa-digital);
+  color: white;
+  border-color: var(--turquesa-digital);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #006978; /* Turquesa más oscuro */
+  border-color: #006978;
+}
+
+.btn-secondary {
+  background-color: var(--coral-urbano);
+  color: white;
+  border-color: var(--coral-urbano);
+}
+
+.btn-secondary:hover {
+  background-color: #a6360f; /* Coral más oscuro */
+  border-color: #a6360f;
+}
+

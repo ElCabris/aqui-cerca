@@ -1,0 +1,13 @@
+<nav class="user-navbar">
+  <ul>
+    <li *ngFor="let section of sections"
+        [class.active]="section.label === selected"
+        (click)="selectSection(section)"
+        tabindex="0"
+        role="button"
+        aria-pressed="{{section.label === selected}}">
+      <fa-icon [icon]="section.icon" class="icon"></fa-icon>
+      <span class="label">{{ section.label }}</span>
+    </li>
+  </ul>
+</nav>

@@ -1,0 +1,20 @@
+<div class="user-page-container">
+  <h2>Bienvenido, {{ user.name }}</h2>
+
+  <section class="puntos-section">
+    <h3>Total de Puntos de Apoyo Local</h3>
+    <div class="puntos-valor">{{ user.puntosApoyoLocal | number }}</div>
+  </section>
+
+  <section class="historial-section">
+    <h3>Historial Reciente</h3>
+    <ul>
+      <li *ngFor="let local of user.historialLocales">
+        <span class="local-nombre">{{ local.nombre }}</span>
+        <span class="local-fecha">{{ local.fecha | date:'dd/MM/yyyy' }}</span>
+      </li>
+    </ul>
+  </section>
+</div>
+
+

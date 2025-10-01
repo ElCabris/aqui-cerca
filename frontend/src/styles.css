@@ -1,1 +1,12 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --verde-comunidad: #1b5e20;      /* Verde oscuro para encabezados y validaciones OK */
+  --turquesa-digital: #0097a7;     /* Turquesa más oscuro para botones principales y foco */
+  --amarillo-recompensa: #fbc02d;  /* Amarillo vibrante para éxito/recompensa */
+  --coral-urbano: #d84315;         /* Coral oscuro para botones secundarios y acentos */
+  --rojo-error: #b71c1c;           /* Rojo oscuro para errores de validación */
+  --gris-claro: #f5f7fa;
+  --gris-medio: #cbd5e1;
+  --gris-oscuro: #334155;
+  --sombra-suave: rgba(0, 0, 0, 0.1);
+}
+

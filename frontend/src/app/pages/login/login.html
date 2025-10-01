@@ -1,0 +1,51 @@
+<div class="login-container">
+  <h2>Iniciar Sesión</h2>
+  <form #form="ngForm" (ngSubmit)="onSubmit(form)" novalidate>
+
+    <div class="form-group">
+      <label for="email">Correo electrónico</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        [(ngModel)]="user.email"
+        #email="ngModel"
+        required
+        email
+        [class.invalid]="email.invalid && (email.dirty || email.touched)"
+        [class.valid]="email.valid && (email.dirty || email.touched)"
+        placeholder="ejemplo@correo.com"
+      />
+      <div class="error-message" *ngIf="email.invalid && (email.dirty || email.touched)">
+        <small *ngIf="email.errors?.['required']">El correo es obligatorio.</small>
+        <small *ngIf="email.errors?.['email']">Correo no válido.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        [(ngModel)]="user.password"
+        #password="ngModel"
+        required
+        minlength="6"
+        [class.invalid]="password.invalid && (password.dirty || password.touched)"
+        [class.valid]="password.valid && (password.dirty || password.touched)"
+        placeholder="Mínimo 6 caracteres"
+      />
+      <div class="error-message" *ngIf="password.invalid && (password.dirty || password.touched)">
+        <small *ngIf="password.errors?.['required']">La contraseña es obligatoria.</small>
+        <small *ngIf="password.errors?.['minlength']">Mínimo 6 caracteres.</small>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button type="submit" [disabled]="form.invalid" class="btn-primary">Iniciar Sesión</button>
+      <button type="button" class="btn-secondary" (click)="form.resetForm()">Limpiar</button>
+    </div>
+  </form>
+</div>
+
