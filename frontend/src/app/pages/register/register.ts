@@ -28,12 +28,12 @@ export class Register {
         next: (user) => {
           Swal.fire({
             title: '¡Registro Exitoso!',
-            text: `Se ha registrado correctamente: ${user.name}`,
+            text: `Se ha registrado correctamente: ${this.user.name}`,
             icon: 'success',
             confirmButtonText: 'Iniciar Sesión',
             confirmButtonColor: '#3085d6'
           }).then(() => {
-            this.router.navigate(['/profile']);
+            this.router.navigate(['/login']);
           });
         },
         error: (error) => {
