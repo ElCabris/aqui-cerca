@@ -1,15 +1,15 @@
-<div class="user-page-container">
+<div class="user-page-container" *ngIf="user; else loading">
   <h2>Bienvenido, {{ user.name }}</h2>
 
   <section class="puntos-section">
     <h3>Total de Puntos de Apoyo Local</h3>
-    <div class="puntos-valor">{{ user.puntosApoyoLocal | number }}</div>
+    <div class="puntos-valor">{{ user.points | number }}</div>
   </section>
 
   <section class="historial-section">
     <h3>Historial Reciente</h3>
     <ul>
-      <li *ngFor="let local of user.historialLocales">
+      <li *ngFor="let local of historialLocales">
         <span class="local-nombre">{{ local.nombre }}</span>
         <span class="local-fecha">{{ local.fecha | date:'dd/MM/yyyy' }}</span>
       </li>
@@ -17,4 +17,20 @@
   </section>
 </div>
 
-
+<ng-template #loading>
+  <div class="user-page-container">
+    <div class="loading-state">
+      <h2>Cargando...</h2>
+      <section class="puntos-section">
+        <h3>Total de Puntos de Apoyo Local</h3>
+        <div class="puntos-valor">---</div>
+      </section>
+      <section class="historial-section">
+        <h3>Historial Reciente</h3>
+        <ul>
+          <li><span class="local-nombre">Cargando...</span><span class="local-fecha">--/--/----</span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</ng-template>
