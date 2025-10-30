@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AppConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
+import { QrModule } from './qr/qr.module';
 
 @Module({
-	imports: [UsersModule, AppConfigModule, AuthModule],
+	imports: [QrModule, UsersModule, AppConfigModule, AuthModule],
 	controllers: [AppController],
 	providers: [AppService],
 })

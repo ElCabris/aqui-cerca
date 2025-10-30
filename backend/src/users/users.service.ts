@@ -6,6 +6,7 @@ import supabaseConfig from 'src/config/supabase.config/supabase.config';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
 import { User } from './entities/user.entity/user.entity';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -43,6 +44,25 @@ export class UsersService {
 				throw new BadRequestException(`Error creating user: ${error.message}`);
 			}
 
+			// Crear local asociado al usuario recién creado
+			const qrCodeId = randomUUID();
+			const { error: localError } = await this.supabase
+				.from('locals')
+				.insert({
+					name: '',
+					physical_address: '',
+					latitude: 0,
+					longitude: 0,
+					qr_code_id: qrCodeId,
+					// Campo de asociación propuesto en el esquema
+					owner_email: email,
+					// Campos opcionales quedan en null por defecto (p.ej., description)
+				});
+
+			if (localError) {
+				throw new InternalServerErrorException(`Error creando negocio asociado: ${localError.message}`);
+			}
+
 			return { id: data };
 		} catch (error) {
 			if (error instanceof ConflictException || error instanceof BadRequestException) {
@@ -75,11 +95,11 @@ export class UsersService {
 		}
 	}
 
-	async updatePoints(userId: number, points: number): Promise<User> {
+	async updatePoints(userEmail: string, points: number): Promise<User> {
 		const { data, error } = await this.supabase
 			.from('users')
 			.update({ points })
-			.eq('id', userId)
+			.eq('email', userEmail)
 			.select()
 			.single();
 
@@ -95,6 +115,20 @@ export class UsersService {
 
 		if (error) {
 			throw new NotFoundException(`User with email: ${email} not found`);
+		}
+
+		return data;
+	}
+
+	async findBusinessByUserEmail(email: string): Promise<any> {
+		const { data, error } = await this.supabase
+			.from('locals')
+			.select('*')
+			.eq('owner_email', email)
+			.single();
+
+		if (error) {
+			throw new NotFoundException(`Business for user email: ${email} not found`);
 		}
 
 		return data;

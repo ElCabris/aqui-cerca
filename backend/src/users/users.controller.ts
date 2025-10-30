@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpStatus, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpStatus, NotFoundException, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
 import { User } from './entities/user.entity/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users')
 @Controller('users')
@@ -43,6 +44,7 @@ export class UsersController {
 		description: 'Usuario no encontrado'
 	})
 	@ApiBody({ type: UpdateUserDto })
+	@UseGuards(AuthGuard('jwt'))
 	update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
 		return this.usersService.update(id, updateUserDto);
 	}
@@ -58,13 +60,18 @@ export class UsersController {
 		status: HttpStatus.NOT_FOUND,
 		description: 'Usuario no encontrado'
 	})
+	@UseGuards(AuthGuard('jwt'))
 	remove(@Param('id', ParseIntPipe) id: number) {
 		return this.usersService.remove(id);
 	}
 
-	@Patch(':id/points')
+	@Patch(':email/points') // 1. Cambia el parámetro de la ruta a 'email'
 	@ApiOperation({ summary: 'Actualizar puntos de un usuario' })
-	@ApiParam({ name: 'id', description: 'ID del usuario', type: Number })
+	@ApiParam({
+		name: 'email',
+		description: 'Correo electrónico del usuario',
+		type: String // 2. Actualiza el tipo a String
+	})
 	@ApiResponse({
 		status: HttpStatus.OK,
 		description: 'Puntos actualizados exitosamente',
@@ -74,20 +81,37 @@ export class UsersController {
 		status: HttpStatus.NOT_FOUND,
 		description: 'Usuario no encontrado'
 	})
+	@UseGuards(AuthGuard('jwt'))
 	updatePoints(
-		@Param('id', ParseIntPipe) id: number,
+		// 3. Cambia el decorador a @Param('email') y el tipo a string
+		@Param('email') userEmail: string,
 		@Body('points', ParseIntPipe) points: number,
 	) {
-		return this.usersService.updatePoints(id, points);
+		// 4. Llama al servicio con el correo electrónico
+		return this.usersService.updatePoints(userEmail, points);
 	}
 
+	@UseGuards(AuthGuard('jwt'))
+	@ApiOperation({ summary: 'Buscar un usuario por email' })
 	@Get('email/:email')
 	async findByEmail(@Param('email') email: string) {
 		try {
 			const user = await this.usersService.findByEmail(email);
 			return user;
 		} catch (error) {
-			throw new NotFoundException();
+			throw new NotFoundException(`Usuario con email ${email} no encontrado.`);
+		}
+	}
+
+	@UseGuards(AuthGuard('jwt'))
+	@ApiOperation({ summary: 'Obtener negocio del usuario por email' })
+	@Get('email/:email/business')
+	async findBusinessByEmail(@Param('email') email: string) {
+		try {
+			const business = await this.usersService.findBusinessByUserEmail(email);
+			return business;
+		} catch (error) {
+			throw new NotFoundException(`Negocio del usuario con email ${email} no encontrado.`);
 		}
 	}
 }

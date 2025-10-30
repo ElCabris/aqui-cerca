@@ -1,9 +1,11 @@
-import { Injectable, UnauthorizedException, Inject, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as bcrypt from 'bcrypt';
 import type { ConfigType } from '@nestjs/config';
 import supabaseConfig from 'src/config/supabase.config/supabase.config';
 import { LoginDto } from './dto/login.dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
+import { access } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +14,7 @@ export class AuthService {
 	constructor(
 		@Inject(supabaseConfig.KEY)
 		private config: ConfigType<typeof supabaseConfig>,
+		private jwtService: JwtService,
 	) {
 		this.supabase = createClient(config.url, config.key);
 	}
@@ -42,9 +45,13 @@ export class AuthService {
 			throw new UnauthorizedException('Credenciales inválidas');
 		}
 
+		const payload = {
+			username: loginDto.email,
+			sub: loginDto.email
+		};
+
 		return {
-			message: 'successful login',
-			success: true
+			access_token: this.jwtService.sign(payload),
 		};
 	}
 }

@@ -20,7 +20,9 @@ CREATE TABLE locals (
     latitude DECIMAL(10, 7) NOT NULL,
     longitude DECIMAL(10, 7) NOT NULL,
     qr_code_id VARCHAR(50) UNIQUE NOT NULL,
-    state local_state DEFAULT 'pending' NOT NULL
+    state local_state DEFAULT 'pending' NOT NULL,
+    -- Asociación con usuario propietario (uno a uno)
+    owner_email VARCHAR(150) UNIQUE NOT NULL REFERENCES users(email)
 );
 
 -- Tabla de categorías
@@ -101,10 +103,33 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     new_user_id INTEGER;
+    v_qr_code_id VARCHAR(50);
 BEGIN
     INSERT INTO users (name, email, password_hash)
     VALUES (p_name, p_email, p_password_hash)
     RETURNING id INTO new_user_id;
+
+    -- Generar un identificador simple y único para QR (ajústalo si usas uuid-ossp)
+    v_qr_code_id := substring(md5(random()::text || clock_timestamp()::text) from 1 for 20);
+
+    -- Crear el negocio asociado al nuevo usuario
+    INSERT INTO locals (
+        name,
+        description,
+        physical_address,
+        latitude,
+        longitude,
+        qr_code_id,
+        owner_email
+    ) VALUES (
+        '',                -- name (placeholder; el usuario lo podrá actualizar)
+        NULL,              -- description (opcional)
+        '',                -- physical_address (placeholder)
+        0,                 -- latitude (placeholder)
+        0,                 -- longitude (placeholder)
+        v_qr_code_id,      -- qr_code_id generado
+        p_email            -- owner_email enlazado al usuario creado
+    );
 
     RETURN new_user_id;
 
