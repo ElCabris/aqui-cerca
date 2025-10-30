@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpStatus, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpStatus, NotFoundException, UseGuards, BadRequestException, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
@@ -113,5 +113,47 @@ export class UsersController {
 		} catch (error) {
 			throw new NotFoundException(`Negocio del usuario con email ${email} no encontrado.`);
 		}
+	}
+
+	@UseGuards(AuthGuard('jwt'))
+	@ApiOperation({ summary: 'Actualizar nombre del negocio por email' })
+	@Patch('email/:email/business/name')
+	async updateBusinessName(
+		@Param('email') email: string,
+		@Body('name') name: string,
+	) {
+		if (!name) throw new BadRequestException('name es requerido');
+		const updated = await this.usersService.updateBusinessNameByUserEmail(email, name);
+		return updated;
+	}
+
+	@UseGuards(AuthGuard('jwt'))
+	@ApiOperation({ summary: 'Listar etiquetas del negocio del usuario por email' })
+	@Get('email/:email/tags')
+	async getTags(@Param('email') email: string) {
+		return { tags: await this.usersService.getTagsByUserEmail(email) };
+	}
+
+	@UseGuards(AuthGuard('jwt'))
+	@ApiOperation({ summary: 'Agregar etiqueta al negocio del usuario por email' })
+	@Post('email/:email/tags')
+	async addTag(@Param('email') email: string, @Body('name') name: string) {
+		if (!name) throw new BadRequestException('name es requerido');
+		return { tags: await this.usersService.addTagByUserEmail(email, name) };
+	}
+
+	@UseGuards(AuthGuard('jwt'))
+	@ApiOperation({ summary: 'Eliminar etiqueta del negocio del usuario por email' })
+	@Delete('email/:email/tags/:name')
+	async removeTag(@Param('email') email: string, @Param('name') name: string) {
+		return { tags: await this.usersService.removeTagByUserEmail(email, name) };
+	}
+
+	@UseGuards(AuthGuard('jwt'))
+	@ApiOperation({ summary: 'Buscar locales por etiquetas (cualquiera)' })
+	@Get('locals/search')
+	async searchLocals(@Query('tags') tags?: string) {
+		const list = await this.usersService.searchLocalsByTags(tags ? tags.split(',') : []);
+		return { locals: list };
 	}
 }
