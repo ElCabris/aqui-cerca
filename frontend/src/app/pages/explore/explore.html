@@ -1,1 +1,31 @@
-<p>explore works!</p>
+<div class="explore-container">
+  <h1>Explorar</h1>
+
+  <section class="search-section">
+    <div class="tag-input">
+      <input type="text" [(ngModel)]="newTag" placeholder="Añadir etiqueta (Enter)"
+             (keyup.enter)="addTag()" />
+      <button type="button" (click)="addTag()">Agregar</button>
+    </div>
+
+    <div class="tags-list" *ngIf="tags.length">
+      <span class="tag" *ngFor="let tag of tags">
+        {{ tag }}
+        <button type="button" class="remove" (click)="removeTag(tag)" aria-label="Eliminar etiqueta">&times;</button>
+      </span>
+    </div>
+  </section>
+
+  <section class="locals-section">
+    <h2>Locales</h2>
+    <div class="locals-grid">
+      <div class="local-card" *ngFor="let local of filteredLocals">
+        <h3>{{ local.name }}</h3>
+        <p class="description" *ngIf="local.description">{{ local.description }}</p>
+        <div class="local-tags" *ngIf="local.categories?.length">
+          <span class="chip" *ngFor="let c of local.categories">{{ c }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

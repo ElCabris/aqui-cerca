@@ -98,13 +98,57 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('jwt_token');
-    // La comprobación es simple: solo verifica si el token existe.
-    // Para más seguridad, podrías decodificar el token y verificar su fecha de expiración.
-    return !!token;
+    return this.isTokenValid();
   }
 
   public getToken(): string | null {
     return localStorage.getItem('jwt_token');
+  }
+
+  private isTokenValid(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+
+    try {
+      const payloadPart = token.split('.')[1];
+      const decodedJson = this.base64UrlDecode(payloadPart);
+      const decoded = JSON.parse(decodedJson) as JwtPayload;
+      if (!decoded.exp) return false;
+      const nowInSeconds = Math.floor(Date.now() / 1000);
+      const valid = decoded.exp > nowInSeconds;
+      if (!valid) {
+        // Token expirado: limpiar y considerar no autenticado
+        localStorage.removeItem('jwt_token');
+      }
+      return valid;
+    } catch (e) {
+      // Token malformado
+      localStorage.removeItem('jwt_token');
+      return false;
+    }
+  }
+
+  private base64UrlDecode(input: string): string {
+    // Normaliza Base64URL a Base64 estándar y decodifica
+    let base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = base64.length % 4;
+    if (pad === 2) base64 += '==';
+    else if (pad === 3) base64 += '=';
+    else if (pad !== 0) throw new Error('Invalid base64url string');
+    return atob(base64);
+  }
+
+  public getUserEmail(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payloadPart = token.split('.')[1];
+      const decodedJson = this.base64UrlDecode(payloadPart);
+      const decoded = JSON.parse(decodedJson) as JwtPayload;
+      // En backend establecemos username y sub al email
+      return decoded.sub || decoded.username || null;
+    } catch {
+      return null;
+    }
   }
 }

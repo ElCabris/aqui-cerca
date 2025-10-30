@@ -9,7 +9,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (authService.isAuthenticated()) {
     return true;
   } else {
-    // Redirige al usuario a la página de login si no está autenticado
+    // Limpia sesión si el token es inválido/expirado y redirige a login
+    authService.logout();
     router.navigate(['/login']);
     return false;
   }

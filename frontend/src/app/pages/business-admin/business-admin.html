@@ -50,4 +50,11 @@
 
     <button type="submit" class="save-button">Guardar Cambios</button>
   </form>
+
+  <section class="form-section">
+    <h2>Código QR</h2>
+    <div class="qr-container">
+      <img [src]="qrCodeUrl" alt="Código QR del negocio" *ngIf="qrCodeUrl">
+    </div>
+  </section>
 </div>
