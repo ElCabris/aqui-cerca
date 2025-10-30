@@ -1,0 +1,53 @@
+<div class="admin-container">
+  <h1>Administrar Negocio</h1>
+
+  <form (ngSubmit)="saveChanges()">
+    <section class="form-section">
+      <h2>Datos del Negocio</h2>
+      <div class="form-group">
+        <label for="businessName">Nombre del Negocio</label>
+        <input type="text" id="businessName" [(ngModel)]="businessName" name="businessName" required>
+      </div>
+      <div class="form-group">
+        <label for="businessAddress">Dirección</label>
+        <input type="text" id="businessAddress" [(ngModel)]="businessAddress" name="businessAddress" required>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Etiquetas</h2>
+      <div class="tags-list">
+        <span *ngFor="let tag of tags" class="tag">
+          {{ tag }}
+          <button type="button" (click)="removeTag(tag)" class="remove-btn">&times;</button>
+        </span>
+      </div>
+      <div class="form-group add-tag-group">
+        <input type="text" [(ngModel)]="newTag" name="newTag" placeholder="Nueva etiqueta">
+        <button type="button" (click)="addTag()">Agregar Etiqueta</button>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Productos</h2>
+      <ul class="products-list">
+        <li *ngFor="let product of products">
+          <span class="product-name">{{ product.name }}</span>
+          <div class="product-controls">
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="product.available" [name]="product.name + '-available'">
+              <span class="slider round"></span>
+            </label>
+            <button type="button" (click)="removeProduct(product)" class="remove-btn">&times;</button>
+          </div>
+        </li>
+      </ul>
+      <div class="form-group add-product-group">
+        <input type="text" [(ngModel)]="newProductName" name="newProductName" placeholder="Nuevo producto">
+        <button type="button" (click)="addProduct()">Agregar Producto</button>
+      </div>
+    </section>
+
+    <button type="submit" class="save-button">Guardar Cambios</button>
+  </form>
+</div>

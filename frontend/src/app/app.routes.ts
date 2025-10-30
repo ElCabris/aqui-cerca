@@ -7,6 +7,7 @@ import { Explore } from './pages/explore/explore';
 import { Login } from './pages/login/login';
 import { About } from './pages/about/about';
 import { authGuard } from './services/auth.guard';
+import { BusinessAdmin } from './pages/business-admin/business-admin';
 
 export const routes: Routes = [
   { path: 'register', component: Register },
@@ -16,5 +17,6 @@ export const routes: Routes = [
   { path: 'explore', component: Explore, canActivate: [authGuard] },
   { path: 'login', component: Login },
   { path: 'about', component: About },
+  { path: 'admin/business', component: BusinessAdmin, canActivate: [authGuard] },
   { path: '', redirectTo: 'about', pathMatch: 'full' }
 ];
