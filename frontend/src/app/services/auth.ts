@@ -10,8 +10,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  message: string;
-  success: boolean;
+  access_token: string;
 }
 
 export interface RegisterRequest {
@@ -28,6 +27,13 @@ export interface User {
   points: number;
 }
 
+export interface JwtPayload {
+  username: string;
+  sub: string;
+  iat: number;
+  exp: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -37,6 +43,7 @@ export class AuthService {
   private apiUrl = environment.apiUrl;
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
+
     console.log('🔐 [AuthService] Intentando login con credenciales:', {
       email: credentials.email,
       password: credentials.password
@@ -48,17 +55,13 @@ export class AuthService {
         tap((response: LoginResponse) => {
           console.log('✅ [AuthService] Respuesta recibida del backend:', response);
 
-          if (response.success) {
-            console.log('🔑 [AuthService] Login exitoso - Guardando en localStorage');
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userEmail', credentials.email);
-            console.log('💾 [AuthService] Datos guardados en localStorage:', {
-              isLoggedIn: localStorage.getItem('isLoggedIn'),
-              userEmail: localStorage.getItem('userEmail')
-            });
+          if (response.access_token) {
+            console.log('🔑 [AuthService] Login exitoso - Guardando token JWT');
+
+            localStorage.setItem('jwt_token', response.access_token);
+
           } else {
-            console.warn('❌ [AuthService] Login fallido - El backend respondió con success: false');
-            console.log('📋 [AuthService] Mensaje del backend:', response.message);
+            console.warn('❌ [AuthService] Login fallido o access_token no recibido');
           }
         })
       );
@@ -89,59 +92,19 @@ export class AuthService {
 
   logout(): void {
     console.log('🚪 [AuthService] Iniciando proceso de logout');
-    console.log('🗑️ [AuthService] Limpiando localStorage...');
-
-    const previousEmail = localStorage.getItem('userEmail');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
-
-    console.log('✅ [AuthService] localStorage limpiado. Email anterior:', previousEmail);
-    console.log('📍 [AuthService] Redirigiendo a /login');
-
+    localStorage.removeItem('jwt_token');
+    console.log('🗑️ [AuthService] Token JWT eliminado de localStorage.');
     this.router.navigate(['/login']);
   }
 
-  isLoggedIn(): boolean {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const userEmail = localStorage.getItem('userEmail');
-
-    console.log('🔍 [AuthService] Verificando estado de login:', {
-      isLoggedIn: isLoggedIn,
-      userEmail: userEmail,
-      timestamp: new Date().toISOString()
-    });
-
-    return isLoggedIn;
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('jwt_token');
+    // La comprobación es simple: solo verifica si el token existe.
+    // Para más seguridad, podrías decodificar el token y verificar su fecha de expiración.
+    return !!token;
   }
 
-  // Método adicional para debugging del estado actual
-  getAuthState(): void {
-    console.log('🔍 [AuthService] Estado actual de autenticación:', {
-      isLoggedIn: localStorage.getItem('isLoggedIn'),
-      userEmail: localStorage.getItem('userEmail'),
-      allLocalStorage: { ...localStorage }
-    });
-  }
-
-  // Método para verificar conexión con el backend
-  testBackendConnection(): Observable<any> {
-    console.log('🧪 [AuthService] Probando conexión con el backend...');
-    console.log('🌐 [AuthService] URL de prueba:', `${this.apiUrl}/users`);
-
-    return this.http.get(`${this.apiUrl}/users`).pipe(
-      tap({
-        next: (response) => {
-          console.log('✅ [AuthService] Conexión con backend exitosa:', response);
-        },
-        error: (error) => {
-          console.error('💥 [AuthService] Error de conexión con backend:', error);
-          console.log('📊 [AuthService] Detalles del error:', {
-            status: error.status,
-            message: error.message,
-            url: error.url
-          });
-        }
-      })
-    );
+  public getToken(): string | null {
+    return localStorage.getItem('jwt_token');
   }
 }
