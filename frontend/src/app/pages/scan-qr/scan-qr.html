@@ -1,1 +1,37 @@
-<p>scan-qr works!</p>
+<div class="scanner-container">
+  <h2>Escanear Código QR</h2>
+
+  <zxing-scanner
+    [class.scanner-active]="hasDevices"
+    [tryHarder]="true"
+    [device]="currentDevice"
+    [torch]="torchEnabled"
+    (scanSuccess)="onCodeResult($event)"
+    (camerasFound)="onCamerasFound($event)"
+    (scanError)="onScanError($event)"
+  >
+    <p class="loading-message">Cargando cámara...</p>
+  </zxing-scanner>
+
+  <!-- El target del evento se usa con tipado seguro en el TS -->
+  <div *ngIf="availableDevices.length > 1">
+    <label for="cameraSelect">Seleccionar Cámara:</label>
+    <select id="cameraSelect" (change)="onDeviceSelectChange($event)">
+      <option
+        *ngFor="let device of availableDevices"
+        [value]="device.deviceId"
+        [selected]="device.deviceId === currentDevice?.deviceId"
+      >
+        {{ device.label }}
+      </option>
+    </select>
+  </div>
+
+  <div class="results">
+    <p>Resultado del Escaneo: <strong>{{ qrResultString }}</strong></p>
+
+    <button (click)="torchEnabled = !torchEnabled" *ngIf="hasDevices">
+      {{ torchEnabled ? 'Apagar Linterna' : 'Encender Linterna' }}
+    </button>
+  </div>
+</div>

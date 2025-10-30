@@ -1,0 +1,21 @@
+.scanner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Dar dimensiones al componente del escáner */
+zxing-scanner {
+  width: 100%;
+  max-width: 400px; /* Limita el ancho en escritorio */
+  height: 300px;
+  border: 2px solid var(--ion-color-primary, #3880ff);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.loading-message {
+  color: #888;
+  margin-top: 10px;
+}
