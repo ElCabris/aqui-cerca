@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 // No necesitamos importar 'Result' si el componente emite solo el string
 // import { Result } from '@zxing/library';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-scan-qr',
@@ -20,6 +22,8 @@ export class ScanQr implements OnInit {
   hasDevices: boolean = false;
   qrResultString: string = '';
   torchEnabled: boolean = false;
+
+  private http = inject(HttpClient);
 
   constructor(private router: Router) { }
 
@@ -60,5 +64,21 @@ export class ScanQr implements OnInit {
     console.log('Cámara seleccionada:', selectedValue);
     const device = this.availableDevices.find(d => d.deviceId === selectedValue);
     this.currentDevice = device;
+  }
+
+  sendSupportPoints(points: number = 10): void {
+    if (!this.qrResultString) return;
+    const url = `${environment.apiUrl}/qr/award`;
+    this.http.post<{ success: boolean; points: number }>(url, {
+      qr_code_id: this.qrResultString,
+      points
+    }).subscribe({
+      next: (res) => {
+        console.log('Puntos de apoyo sumados. Total actual:', res.points);
+      },
+      error: (err) => {
+        console.error('Error enviando puntos de apoyo', err);
+      }
+    });
   }
 }

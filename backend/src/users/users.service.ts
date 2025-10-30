@@ -133,5 +133,37 @@ export class UsersService {
 
 		return data;
 	}
+
+	async findLocalByQrCodeId(qrCodeId: string): Promise<any> {
+		const { data, error } = await this.supabase
+			.from('locals')
+			.select('*')
+			.eq('qr_code_id', qrCodeId)
+			.single();
+
+		if (error) {
+			throw new NotFoundException(`Local con qr_code_id ${qrCodeId} no encontrado`);
+		}
+
+		return data;
+	}
+
+	async addPointsByEmail(email: string, delta: number): Promise<User> {
+		const user = await this.findByEmail(email);
+		const newPoints = (user.points || 0) + delta;
+
+		const { data, error } = await this.supabase
+			.from('users')
+			.update({ points: newPoints })
+			.eq('email', email)
+			.select('*')
+			.single();
+
+		if (error) {
+			throw new InternalServerErrorException(`Error sumando puntos: ${error.message}`);
+		}
+
+		return data as User;
+	}
 }
 

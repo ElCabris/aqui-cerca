@@ -33,5 +33,11 @@
     <button (click)="torchEnabled = !torchEnabled" *ngIf="hasDevices">
       {{ torchEnabled ? 'Apagar Linterna' : 'Encender Linterna' }}
     </button>
+
+    <div *ngIf="qrResultString" class="award">
+      <button (click)="sendSupportPoints(10)">
+        Enviar apoyo (+10 puntos)
+      </button>
+    </div>
   </div>
 </div>

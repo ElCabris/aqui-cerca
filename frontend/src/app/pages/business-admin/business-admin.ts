@@ -20,6 +20,7 @@ interface Product {
 export class BusinessAdmin implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
+
   businessName = 'Mi Negocio de Ejemplo';
   businessAddress = 'Calle Falsa 123, Springfield';
   tags: string[] = ['restaurante', 'comida-rapida', 'familiar'];
@@ -31,6 +32,7 @@ export class BusinessAdmin implements OnInit {
   ];
   newProductName = '';
   qrCodeUrl?: string;
+  private qrCodeId?: string;
 
   ngOnInit(): void {
     const email = this.auth.getUserEmail();
@@ -40,12 +42,14 @@ export class BusinessAdmin implements OnInit {
     }
 
     const url = `${environment.apiUrl}/qr?email=${encodeURIComponent(email)}`;
-    this.http.get<{ qr: string }>(url).subscribe({
+    this.http.get<{ qr: string; qr_code_id: string }>(url).subscribe({
       next: (res) => {
-        this.qrCodeUrl = res.qr; // data URL devuelta por backend
+        this.qrCodeUrl = res.qr;
+        this.qrCodeId = res.qr_code_id;
       },
       error: () => {
         this.qrCodeUrl = undefined;
+        this.qrCodeId = undefined;
       }
     });
   }
@@ -73,7 +77,6 @@ export class BusinessAdmin implements OnInit {
   }
 
   saveChanges() {
-    // Aquí iría la lógica para guardar los datos en el backend a través de un servicio.
     console.log('Guardando cambios:', {
       name: this.businessName,
       address: this.businessAddress,
@@ -81,5 +84,21 @@ export class BusinessAdmin implements OnInit {
       products: this.products
     });
     alert('Cambios guardados (simulación). Revisa la consola para ver los datos.');
+  }
+
+  awardPoints(points: number = 10) {
+    if (!this.qrCodeId) return;
+    const url = `${environment.apiUrl}/qr/award`;
+    this.http.post<{ success: boolean; points: number }>(url, {
+      qr_code_id: this.qrCodeId,
+      points
+    }).subscribe({
+      next: (res) => {
+        console.log('Puntos actualizados:', res.points);
+      },
+      error: (err) => {
+        console.error('Error sumando puntos', err);
+      }
+    });
   }
 }
