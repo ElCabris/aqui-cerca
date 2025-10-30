@@ -21,9 +21,9 @@ export class BusinessAdmin implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 
-  businessName = 'Mi Negocio de Ejemplo';
+  businessName = '';
   businessAddress = 'Calle Falsa 123, Springfield';
-  tags: string[] = ['restaurante', 'comida-rapida', 'familiar'];
+  tags: string[] = [];
   newTag = '';
   products: Product[] = [
     { name: 'Hamburguesa Clásica', available: true },
@@ -41,8 +41,20 @@ export class BusinessAdmin implements OnInit {
       return;
     }
 
-    const url = `${environment.apiUrl}/qr?email=${encodeURIComponent(email)}`;
-    this.http.get<{ qr: string; qr_code_id: string }>(url).subscribe({
+    // Cargar datos del negocio (nombre)
+    const businessUrl = `${environment.apiUrl}/users/email/${encodeURIComponent(email)}/business`;
+    this.http.get<any>(businessUrl).subscribe({
+      next: (biz) => {
+        this.businessName = biz?.name || '';
+      },
+      error: () => {
+        this.businessName = '';
+      }
+    });
+
+    // Cargar QR (y qr_code_id)
+    const qrUrl = `${environment.apiUrl}/qr?email=${encodeURIComponent(email)}`;
+    this.http.get<{ qr: string; qr_code_id: string }>(qrUrl).subscribe({
       next: (res) => {
         this.qrCodeUrl = res.qr;
         this.qrCodeId = res.qr_code_id;
@@ -52,17 +64,49 @@ export class BusinessAdmin implements OnInit {
         this.qrCodeId = undefined;
       }
     });
+
+    // Cargar etiquetas existentes
+    const tagsUrl = `${environment.apiUrl}/users/email/${encodeURIComponent(email)}/tags`;
+    this.http.get<{ tags: string[] }>(tagsUrl).subscribe({
+      next: (res) => {
+        this.tags = res.tags || [];
+      },
+      error: () => {
+        this.tags = [];
+      }
+    });
   }
 
   addTag() {
-    if (this.newTag.trim() && !this.tags.includes(this.newTag.trim())) {
-      this.tags.push(this.newTag.trim());
-      this.newTag = '';
-    }
+    const email = this.auth.getUserEmail();
+    const t = this.newTag.trim().toLowerCase();
+    if (!email || !t) return;
+
+    const url = `${environment.apiUrl}/users/email/${encodeURIComponent(email)}/tags`;
+    this.http.post<{ tags: string[] }>(url, { name: t }).subscribe({
+      next: (res) => {
+        this.tags = res.tags || [];
+        this.newTag = '';
+      },
+      error: () => {
+        // Mantener estado; opcional: feedback al usuario
+      }
+    });
   }
 
   removeTag(tagToRemove: string) {
-    this.tags = this.tags.filter(tag => tag !== tagToRemove);
+    const email = this.auth.getUserEmail();
+    if (!email) return;
+
+    const url = `${environment.apiUrl}/users/email/${encodeURIComponent(email)}/tags/${encodeURIComponent(tagToRemove)}`;
+    this.http.delete<{ tags: string[] }>(url).subscribe({
+      next: (res) => {
+        this.tags = res.tags || [];
+      },
+      error: () => {
+        // Mantener estado; opcional: feedback al usuario
+      }
+    });
   }
 
   addProduct() {
@@ -77,13 +121,18 @@ export class BusinessAdmin implements OnInit {
   }
 
   saveChanges() {
-    console.log('Guardando cambios:', {
-      name: this.businessName,
-      address: this.businessAddress,
-      tags: this.tags,
-      products: this.products
+    const email = this.auth.getUserEmail();
+    if (!email) return;
+
+    const url = `${environment.apiUrl}/users/email/${encodeURIComponent(email)}/business/name`;
+    this.http.patch(url, { name: this.businessName || '' }).subscribe({
+      next: () => {
+        alert('Nombre del negocio actualizado');
+      },
+      error: () => {
+        alert('No se pudo actualizar el nombre del negocio');
+      }
     });
-    alert('Cambios guardados (simulación). Revisa la consola para ver los datos.');
   }
 
   awardPoints(points: number = 10) {
