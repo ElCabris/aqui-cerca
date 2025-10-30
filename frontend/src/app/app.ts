@@ -14,17 +14,20 @@ import { NavbarHome } from './components/navbar-home/navbar-home';
 export class App implements OnInit {
   protected readonly title = signal('frontend');
 
-  showNavbar = true;
+  public showNavbar = signal(true);
 
-  router = inject(Router);
+
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      const noNavbarRoutes = ['/login', '/register', '/about'];
+      const noNavbarRouter = ['/login', '/register', '/about'];
 
-      this.showNavbar = !noNavbarRoutes.includes(event.urlAfterRedirects);
-    });
+      const shouldShowNavbar = !noNavbarRouter.includes(event.urlAfterRedirects);
+
+      this.showNavbar.set(shouldShowNavbar);
+    })
   }
 }

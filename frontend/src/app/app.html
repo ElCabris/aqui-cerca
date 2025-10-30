@@ -1,4 +1,4 @@
-<app-navbar *ngIf="showNavbar; else navbarHome"></app-navbar>
+<app-navbar *ngIf="showNavbar(); else navbarHome"></app-navbar>
 <ng-template #navbarHome>
 <app-navbar-home />
 </ng-template>
